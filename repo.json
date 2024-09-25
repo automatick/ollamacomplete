@@ -1,0 +1,14 @@
+[{
+  "Name": "ollamacomplete",
+  "Description": "Integration of ollama server autocompletion for micro",
+  "Website": "https://github.com/automatickk/ollamacomplete",
+  "Tags": ["ollama", "micro", "plugin"],
+  "Versions": [
+    {
+      "Version": "0.0.1",
+      "Require": {
+        "micro": ">=2.0.0"
+      }
+    }
+  ]
+}]
