@@ -4,6 +4,7 @@ local config = import("micro/config")
 local buffer = import("micro/buffer")
 local util = import("micro/util")
 
+
 local lastResult = nil
 
 local json = { _version = "0.1.2" }
@@ -426,7 +427,7 @@ function autocompleteTextCommand(bp)
 
     local data = json.encode({
         model = model,
-        prompt = text .. "dont use the formating symbols, write raw text",
+        prompt = text .. "dont use the formating symbols, write raw text, speak language which speak user",
         stream = false
     })
 
@@ -457,4 +458,5 @@ end
 function init()
 	model = config.GetGlobalOption("ollama.model")
     config.MakeCommand("autocompletetext", autocompleteTextCommand, config.NoComplete)
+    config.TryBindKey("Alt+z", "command:autocompletetext", false)
 end

@@ -13,4 +13,4 @@ Than press enter (it could takes some time)!
 And we get the result at the ours file.
 
 # TODO:
-Make global variables for change model and endpoint.
+Make global variables for change endpoint.
