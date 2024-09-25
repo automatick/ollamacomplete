@@ -5,7 +5,7 @@
   "Tags": ["ollama", "micro", "plugin"],
   "Versions": [
     {
-      "Version": "0.0.1",
+      "Version": "0.0.2",
       "Require": {
         "micro": ">=2.0.0"
       }
