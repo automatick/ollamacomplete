@@ -1,0 +1,4 @@
+!/usr/bin/bash
+mkdir ~/.config/micro/plug/ollama
+mv ./main.lua ~/.config/micro/plug/ollama
+mv ./repo.json ~/.config/micro/plug/ollama
