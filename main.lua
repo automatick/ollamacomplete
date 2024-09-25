@@ -1,3 +1,4 @@
+-- Copyright (c) 2024 automatickk, 2020 rxi, 2024 micro-editor
 local micro = import("micro")
 local config = import("micro/config")
 local buffer = import("micro/buffer")
@@ -5,35 +6,7 @@ local util = import("micro/util")
 
 local lastResult = nil
 
---
--- json.lua
---
--- Copyright (c) 2020 rxi
---
--- Permission is hereby granted, free of charge, to any person obtaining a copy of
--- this software and associated documentation files (the "Software"), to deal in
--- the Software without restriction, including without limitation the rights to
--- use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
--- of the Software, and to permit persons to whom the Software is furnished to do
--- so, subject to the following conditions:
---
--- The above copyright notice and this permission notice shall be included in all
--- copies or substantial portions of the Software.
---
--- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
--- IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
--- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
--- AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
--- LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
--- OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
--- SOFTWARE.
---
-
 local json = { _version = "0.1.2" }
-
--------------------------------------------------------------------------------
--- Encode
--------------------------------------------------------------------------------
 
 local encode
 
@@ -430,6 +403,9 @@ function getText(a, b)
     return table.concat(txt, "\n")
 end
 
+model = "gemma:2b"
+
+
 function autocompleteTextCommand(bp)
     if not bp then
         micro.InfoBar():Message("Buffer not found!")
@@ -444,27 +420,21 @@ function autocompleteTextCommand(bp)
         micro.InfoBar():Message("No text found in buffer!")
         return
     end
+    text = text:gsub('"', '\\"')
+    text = text:gsub('\\', '\\\\')
+    text = text:gsub('\n', '\\n')
 
-    -- Экранирование текста
-    text = text:gsub('"', '\\"') -- Экранируем двойные кавычки
-    text = text:gsub('\\', '\\\\') -- Экранируем обратные слеши
-    text = text:gsub('\n', '\\n') -- Экранируем переносы строк
-
-    -- Формируем данные для запроса
     local data = json.encode({
-        model = "gemma:2b",
-        prompt = text,
+        model = model,
+        prompt = text .. "dont use the formating symbols, write raw text",
         stream = false
     })
 
-    -- Выполняем curl запрос
     local command = "curl -s -X POST http://localhost:11434/api/generate -d '" .. data .. "'"
 
-    -- Используем os.execute для отладки
     local response = io.popen(command):read("*a")
 
     if response then
-        -- Используем json.decode для разбора ответа
         local decodedResponse, err = json.decode(response)
         if err then
             micro.InfoBar():Message("Failed to decode response: " .. err)
@@ -473,10 +443,7 @@ function autocompleteTextCommand(bp)
 
         local newTxt = decodedResponse.response
         if newTxt then
-            -- Заменяем экранированные переносы строк на фактические
             newTxt = newTxt:gsub('\\n', '\n')
-
-            -- Заменяем выделенный текст на новый текст
             v.Buf:Replace(a, b, newTxt)
         else
             micro.InfoBar():Message("Response format incorrect or 'response' key not found")
@@ -488,5 +455,6 @@ end
 
 
 function init()
+	model = config.GetGlobalOption("ollama.model")
     config.MakeCommand("autocompletetext", autocompleteTextCommand, config.NoComplete)
 end
